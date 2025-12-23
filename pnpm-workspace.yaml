@@ -1,0 +1,4 @@
+packages:
+  - 'servers/*'
+  - 'packages/*'
+  - 'clients/*'
