@@ -1,13 +1,20 @@
 {
-  "name": "eccommerce-event-driven-domain",
+  "name": "@ecommerce/domain",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Shared domain models, events, and types for e-commerce microservices",
+  "main": "index.ts",
+  "types": "index.ts",
   "private": true,
+  "exports": {
+    ".": "./index.ts",
+    "./events": "./events/index.ts",
+    "./services": "./services/index.ts",
+    "./topics": "./topics/index.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["domain", "events", "microservices"],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.16.1",

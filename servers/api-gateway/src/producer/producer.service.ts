@@ -1,5 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { EventModel } from '@ecommerce/domain';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ProducerService implements OnModuleInit {
@@ -18,8 +20,8 @@ export class ProducerService implements OnModuleInit {
    * @param message - Mensaje a enviar (será serializado a JSON)
    * @returns Observable con la respuesta
    */
-  async emit<T = any>(topic: string, message: T) {
-    return this.kafkaClient.emit(topic, message);
+  emit(event: EventModel): Observable<any> {
+    return this.kafkaClient.emit(event.topic, event.data);
   }
 
   /**
@@ -28,8 +30,8 @@ export class ProducerService implements OnModuleInit {
    * @param message - Mensaje a enviar
    * @returns Observable con la respuesta
    */
-  send<TResult = any, TInput = any>(topic: string, message: TInput) {
-    return this.kafkaClient.send<TResult, TInput>(topic, message);
+  send<TResult = any, TInput = any>(event: EventModel) {
+    return this.kafkaClient.send<TResult, TInput>(event.topic, event.data);
   }
 
   /**

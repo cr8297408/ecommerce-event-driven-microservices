@@ -1,8 +1,8 @@
 import { Topics } from "../topics";
 
-export abstract class EventModel<T> {
+export abstract class EventModel {
   constructor(
     public readonly topic: Topics,
-    public readonly data: T,
+    public readonly data: any,
   ) {}
 }
