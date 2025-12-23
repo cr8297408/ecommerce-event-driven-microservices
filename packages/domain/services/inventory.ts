@@ -1,8 +1,12 @@
 import { MicroserviceModel } from "./microservice.model";
 
-export class InventoryMicroservice implements MicroserviceModel {
-    id = "service-inventory-id";
-    name = "INVENTORY_SERVICE"
-    clientId = "inventory";
-    consumerId = 'inventory-consumer';
+export class InventoryMicroservice extends MicroserviceModel {
+    constructor() {
+        super(
+            "service-inventory-id",
+            "INVENTORY_SERVICE",
+            "inventory-consumer",
+            "inventory"
+        );
+    }
 }

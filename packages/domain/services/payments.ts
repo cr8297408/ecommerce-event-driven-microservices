@@ -1,8 +1,12 @@
 import { MicroserviceModel } from "./microservice.model";
 
-export class PaymentsMicroservice implements MicroserviceModel {
-    id = "service-payments-id";
-    name = "PAYMENTS_SERVICE"
-    clientId = "payments";
-    consumerId = 'payments-consumer';
+export class PaymentsMicroservice extends MicroserviceModel {
+    constructor() {
+        super(
+            "service-payments-id",       // id
+            "PAYMENTS_SERVICE",          // name
+            "payments-consumer",         // consumerId
+            "payments"                   // clientId
+        );
+    }
 }

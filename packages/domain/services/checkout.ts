@@ -1,8 +1,12 @@
 import { MicroserviceModel } from "./microservice.model";
 
-export class CheckoutMicroservice implements MicroserviceModel {
-    id = "service-checkout-id";
-    name = "CHECKOUT_SERVICE"
-    clientId = "checkout";
-    consumerId = 'checkout-consumer';
+export class CheckoutMicroservice extends MicroserviceModel {
+    constructor() {
+        super(
+            "service-checkout-id",       // id
+            "CHECKOUT_SERVICE",          // name
+            "checkout-consumer",         // consumerId
+            "checkout"                   // clientId
+        );
+    }
 }
