@@ -29,4 +29,9 @@ export enum Topics {
   PROCESS_PAYMENT='payment.process',
   PAYMENT_PROCESSED='payment.processed',
   PAYMENT_FAILED='payment.failed',
+
+  // Users
+  CREATE_USER='user.create',
+  USER_CREATED='user.created',
+  USER_CREATION_FAILED='user.creation.failed',
 }

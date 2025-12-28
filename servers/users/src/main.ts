@@ -1,7 +1,9 @@
 
+
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { UsersMicroservice } from '@ecommerce-event-driven/domain';
 
@@ -9,8 +11,10 @@ async function bootstrap() {
   const appContext = await NestFactory.createApplicationContext(AppModule);
   const configService = appContext.get(ConfigService);
 
+  const logger = new Logger('Bootstrap');
+  logger.log('🚀 Starting Users microservice...');
+
   const kafkaBrokers = configService.get<string>('KAFKA_BROKERS')?.split(',') || [];
-  console.log("🚀 ~ bootstrap ~ kafkaBrokers:", kafkaBrokers)
 
   await appContext.close();
 
@@ -30,6 +34,6 @@ async function bootstrap() {
     },
   );
   await app.listen();
-  console.log('Users microservice is listening on Kafka');
+  logger.log('🟢✨ Users microservice is listening on Kafka! ✨🟢');
 }
 bootstrap();
