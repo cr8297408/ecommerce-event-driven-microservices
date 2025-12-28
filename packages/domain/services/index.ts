@@ -3,3 +3,4 @@ export * from './products';
 export * from './payments';
 export * from './checkout';
 export * from './inventory';
+export * from './users';

@@ -1,12 +1,7 @@
-import { MicroserviceModel } from "./microservice.model";
+import { MicroserviceClass } from "./microservice.model";
 
-export class CheckoutMicroservice extends MicroserviceModel {
-    constructor() {
-        super(
-            "service-checkout-id",       // id
-            "CHECKOUT_SERVICE",          // name
-            "checkout-consumer",         // consumerId
-            "checkout"                   // clientId
-        );
-    }
-}
+export const CheckoutMicroservice: MicroserviceClass = {
+    id: "service-checkout-id",
+    name: "CHECKOUT_SERVICE",
+    clientId: "checkout",
+} as const;

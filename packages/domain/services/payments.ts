@@ -1,12 +1,7 @@
-import { MicroserviceModel } from "./microservice.model";
+import { MicroserviceClass } from "./microservice.model";
 
-export class PaymentsMicroservice extends MicroserviceModel {
-    constructor() {
-        super(
-            "service-payments-id",       // id
-            "PAYMENTS_SERVICE",          // name
-            "payments-consumer",         // consumerId
-            "payments"                   // clientId
-        );
-    }
-}
+export const PaymentsMicroservice: MicroserviceClass = {
+    id: "service-payments-id",
+    name: "PAYMENTS_SERVICE",
+    clientId: "payments",
+} as const;

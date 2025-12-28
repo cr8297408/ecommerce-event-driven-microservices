@@ -1,12 +1,7 @@
-import { MicroserviceModel } from "./microservice.model";
+import { MicroserviceClass } from "./microservice.model";
 
-export class ProductsMicroservice extends MicroserviceModel {
-    constructor() {
-        super(
-            "service-products-id",       // id
-            "PRODUCTS_SERVICE",          // name
-            "product-consumer",          // consumerId
-            "product"                    // clientId
-        );
-    }
-}
+export const ProductsMicroservice: MicroserviceClass = {
+    id: "service-products-id",
+    name: "PRODUCTS_SERVICE",
+    clientId: "products",
+} as const;

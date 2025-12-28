@@ -1,8 +1,5 @@
-export abstract class MicroserviceModel {
-    constructor(
-        public readonly id: string,
-        public readonly name: string,
-        public readonly consumerId: string,
-        public readonly clientId: string,
-    ) {}
+export interface MicroserviceClass {
+    readonly id: string;
+    readonly name: string;
+    readonly clientId: string;
 }
