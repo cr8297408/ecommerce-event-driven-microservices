@@ -2,16 +2,32 @@
   "name": "@ecommerce-event-driven/domain",
   "version": "1.0.0",
   "description": "Shared domain models, events, and types for e-commerce microservices",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "private": true,
   "exports": {
-    ".": "./index.ts",
-    "./events": "./events/index.ts",
-    "./services": "./services/index.ts",
-    "./topics": "./topics/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./events": {
+      "types": "./dist/events/index.d.ts",
+      "default": "./dist/events/index.js"
+    },
+    "./services": {
+      "types": "./dist/services/index.d.ts",
+      "default": "./dist/services/index.js"
+    },
+    "./topics": {
+      "types": "./dist/topics/index.d.ts",
+      "default": "./dist/topics/index.js"
+    }
   },
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["domain", "events", "microservices"],
@@ -20,5 +36,8 @@
   "packageManager": "pnpm@10.16.1",
   "devDependencies": {
     "typescript": "^5.9.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
