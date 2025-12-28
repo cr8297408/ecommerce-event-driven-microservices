@@ -1,5 +1,5 @@
 
-import { UserStatus } from 'src/enums';
+import { UserStatus } from '../enums';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { AddressEntity } from './address.entity';
 
