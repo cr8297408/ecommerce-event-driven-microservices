@@ -9,7 +9,8 @@ async function bootstrap() {
   const appContext = await NestFactory.createApplicationContext(AppModule);
   const configService = appContext.get(ConfigService);
 
-  const kafkaBrokers = configService.get<string>('KAFKA_BROKERS')?.split(',') || ['localhost:9092'];
+  const kafkaBrokers = configService.get<string>('KAFKA_BROKERS')?.split(',') || [];
+  console.log("🚀 ~ bootstrap ~ kafkaBrokers:", kafkaBrokers)
 
   await appContext.close();
 

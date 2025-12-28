@@ -1,12 +1,30 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProducerModule } from './producer/producer.module';
 import { ConfigModule } from './config/config.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [ProducerModule, ConfigModule],
+  imports: [ConfigModule, ClientsModule.registerAsync([
+    {
+      name: 'PRODUCT_SERVICE',
+      useFactory: (configService: ConfigService) => ({
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'product',
+            brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') || [],
+          },
+          consumer: {
+            groupId: 'product-consumer',
+          },
+        },
+      }),
+      inject: [ConfigService],
+    },
+  ]),],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
