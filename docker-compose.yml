@@ -49,9 +49,29 @@ services:
     networks:
       - kafka-network
 
+  users-db:
+    image: postgres:16-alpine
+    container_name: users-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB_NAME:-users}
+    ports:
+      - "5432:5432"
+    networks:
+      - kafka-network
+    volumes:
+      - users-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   kafka-network:
     driver: bridge
 
 volumes:
   kafka-data:
+  users-db-data:
