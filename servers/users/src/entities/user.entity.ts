@@ -18,6 +18,9 @@ export class UserEntity {
   })
   lastName: string;
 
+  @Column({ type: 'varchar', name: 'password' })
+  password: string;
+
   @Column({ type: 'varchar', unique: true, name: 'email_address' })
   emailAddress: string;
 
