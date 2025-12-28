@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
-import { EventModel } from '@ecommerce/domain';
+import { EventModel } from '@ecommerce-event-driven/domain';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -16,8 +16,7 @@ export class ProducerService implements OnModuleInit {
 
   /**
    * Envía un mensaje a un topic de Kafka
-   * @param topic - Nombre del topic
-   * @param message - Mensaje a enviar (será serializado a JSON)
+   * @param event - Evento a emitir
    * @returns Observable con la respuesta
    */
   emit(event: EventModel): Observable<any> {
@@ -26,8 +25,7 @@ export class ProducerService implements OnModuleInit {
 
   /**
    * Envía un mensaje y espera una respuesta (patrón request-response)
-   * @param topic - Nombre del topic
-   * @param message - Mensaje a enviar
+   * @param event - Evento a emitir
    * @returns Observable con la respuesta
    */
   send<TResult = any, TInput = any>(event: EventModel) {

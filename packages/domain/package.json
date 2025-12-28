@@ -1,5 +1,5 @@
 {
-  "name": "@ecommerce/domain",
+  "name": "@ecommerce-event-driven/domain",
   "version": "1.0.0",
   "description": "Shared domain models, events, and types for e-commerce microservices",
   "main": "index.ts",
