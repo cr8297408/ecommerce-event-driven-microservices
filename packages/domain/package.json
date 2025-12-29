@@ -30,7 +30,11 @@
     "prepublishOnly": "pnpm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["domain", "events", "microservices"],
+  "keywords": [
+    "domain",
+    "events",
+    "microservices"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.16.1",
