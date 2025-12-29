@@ -2,9 +2,10 @@ import { Topics } from "../topics";
 import { EventModel } from "./event.model";
 
 export interface CreateUserEventData {
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    password: number;
+    password: string;
 }
 
 export class CreateUserEvent extends EventModel {

@@ -2,29 +2,15 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
-import { UsersMicroservice } from '@ecommerce-event-driven/domain';
+import { AuthModule } from './auth/auth.module';
+import { MicroservicesModule } from './microservices/microservices.module';
 
 @Module({
-  imports: [ConfigModule, ClientsModule.registerAsync([
-    {
-      name: UsersMicroservice.name,
-      useFactory: (configService: ConfigService) => ({
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: UsersMicroservice.clientId,
-            brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') || [],
-          },
-          consumer: {
-            groupId: 'users-consumer-group-from-api-gateway',
-          },
-        },
-      }),
-      inject: [ConfigService],
-    },
-  ]),],
+  imports: [
+    ConfigModule,
+    MicroservicesModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
