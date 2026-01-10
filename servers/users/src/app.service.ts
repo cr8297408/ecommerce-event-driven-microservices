@@ -63,18 +63,32 @@ export class AppService implements OnModuleInit {
   }
 
   async validateEmailAndPassword(data: ValidateEmailAndPasswordEventData): Promise<{ isValid: boolean; emailIsActive: boolean; user?: UserEntity }> {
+    this.logger.log(`🔍 Validando credenciales para: ${data.email}`);
     const user = await this.findUserByEmailStep.execute(data.email);
     if (!user) {
+      this.logger.warn(`❌ Usuario no encontrado: ${data.email}`);
       return { isValid: false, emailIsActive: false };
     }
 
+    this.logger.log(`👤 Usuario encontrado: ${user.id}. Verificando estado...`);
     const emailIsActive = user.status === UserStatus.ACTIVE;
+    
+    if (!emailIsActive) {
+       this.logger.warn(`⚠️ Usuario inactivo: ${user.id} (${user.status})`);
+    }
+
+    this.logger.log(`🔑 Verificando contraseña para: ${user.id}...`);
     const isPasswordValid = await this.verifyPasswordStep.execute(data.password, user.password);
 
     if (isPasswordValid && emailIsActive) {
+      this.logger.log(`✅ Credenciales válidas y usuario activo: ${user.id}`);
       return { isValid: true, emailIsActive: true, user };
     }
 
-    return { isValid: false, emailIsActive };
+    if (!isPasswordValid) {
+        this.logger.warn(`⛔ Contraseña inválida para: ${user.id}`);
+    }
+
+    return { isValid: isPasswordValid, emailIsActive };
   }
 }

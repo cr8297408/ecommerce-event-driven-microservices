@@ -1,15 +1,21 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, OnModuleInit } from '@nestjs/common';
 import { LoginDto, RegisterDto } from './dto';
 import { CreateUserEvent, KAFKA_CLIENT, Topics, ValidateEmailAndPasswordEvent } from '@ecommerce-event-driven/domain';
 import { ClientKafka } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
     constructor(
         private jwtService: JwtService,
         @Inject(KAFKA_CLIENT) private readonly kafkaClient: ClientKafka,
     ) { }
+
+    async onModuleInit() {
+        this.kafkaClient.subscribeToResponseOf(Topics.VALIDATE_EMAIL_AND_PASSWORD);
+        await this.kafkaClient.connect();
+    }
 
     async register(body: RegisterDto) {
         const createUserEvent = new CreateUserEvent({
@@ -34,9 +40,9 @@ export class AuthService {
             password: body.password,
         });
 
-        const response = await this.kafkaClient.send(validateUserEvent.topic, validateUserEvent.data)[0]
+        const response = await firstValueFrom(this.kafkaClient.send(validateUserEvent.topic, validateUserEvent.data));
 
-        if (!response.emailIsActive) throw new UnauthorizedException('Email is not active');
+        if (!response.emailIsActive && response.isValid) throw new UnauthorizedException('Email is not active');
 
         if (!response.isValid) throw new UnauthorizedException('Invalid email or password');
 
