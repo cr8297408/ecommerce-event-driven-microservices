@@ -3,19 +3,25 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database';
-import { CreateUserUseCase } from './use-cases';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './entities';
-import { KafkaModule } from './kafka';
+import { UserEntity } from './entities/user.entity';
+import { KafkaModule } from './kafka/kafka.module';
+import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep } from './steps';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule,
+    ConfigModule,
     DatabaseModule,
     KafkaModule,
     TypeOrmModule.forFeature([UserEntity]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secret',
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, CreateUserUseCase],
+  providers: [AppService, HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep],
 })
 export class AppModule {}

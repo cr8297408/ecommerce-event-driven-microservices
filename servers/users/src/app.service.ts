@@ -1,30 +1,34 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
-import { KAFKA_CLIENT, UserCreatedEvent, UserCreationFailedEvent, CreateUserEventData } from '@ecommerce-event-driven/domain';
-import { CreateUserUseCase } from './use-cases';
+import { CreateUserEventData, Topics, UserCreatedEvent, UserCreationFailedEvent } from '@ecommerce-event-driven/domain';
+import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep } from './steps';
 
 @Injectable()
 export class AppService implements OnModuleInit {
   private readonly logger = new Logger(AppService.name);
 
   constructor(
-    @Inject(KAFKA_CLIENT) private readonly kafkaClient: ClientKafka,
-    private readonly createUserUseCase: CreateUserUseCase,
+    @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientKafka,
+    private readonly hashPasswordStep: HashPasswordStep,
+    private readonly generateTokenStep: GenerateVerificationTokenStep,
+    private readonly createUserStep: CreateUserStep,
   ) {}
 
   async onModuleInit() {
-    // Conectar el cliente Kafka al iniciar el módulo
+    this.kafkaClient.subscribeToResponseOf(Topics.CREATE_USER);
     await this.kafkaClient.connect();
-    this.logger.log('Kafka producer connected');
-  }
-
-  getHello(): string {
-    return 'Hello World!';
   }
 
   async createUser(data: CreateUserEventData) {
     try {
-      const user = await this.createUserUseCase.execute(data);
+      // Step 1: Hash Password
+      const hashedPassword = await this.hashPasswordStep.execute(data.password);
+
+      // Step 2: Generate Verification Token (JWT)
+      const token = this.generateTokenStep.execute(data.email);
+
+      // Step 3: Create User (Without token persistence)
+      const user = await this.createUserStep.execute(data, hashedPassword);
 
       const userCreatedEvent = new UserCreatedEvent({
         id: user.id,
@@ -35,6 +39,7 @@ export class AppService implements OnModuleInit {
         profileImageKey: user.profileImageKey,
         status: user.status,
         createdAt: user.createdAt,
+        verificationToken: token, // Pass stateless token to event
       });
 
       this.logger.log(`📤 Emitting UserCreatedEvent: ${JSON.stringify(userCreatedEvent.data)}`);
