@@ -30,6 +30,9 @@ async function bootstrap() {
         consumer: {
           groupId: 'users-consumer-group',
         },
+        subscribe: {
+          fromBeginning: true,
+        },
       },
     },
   );

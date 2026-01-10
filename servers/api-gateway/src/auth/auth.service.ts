@@ -1,6 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto, RegisterDto } from './dto';
-import { CreateUserEvent, UsersMicroservice, ValidateEmailAndPasswordEvent } from '@ecommerce-event-driven/domain';
+import { CreateUserEvent, KAFKA_CLIENT, Topics, ValidateEmailAndPasswordEvent } from '@ecommerce-event-driven/domain';
 import { ClientKafka } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
 
@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
     constructor(
         private jwtService: JwtService,
-        @Inject(UsersMicroservice.name) private readonly usersClient: ClientKafka,
+        @Inject(KAFKA_CLIENT) private readonly kafkaClient: ClientKafka,
     ) { }
 
     async register(body: RegisterDto) {
@@ -19,7 +19,8 @@ export class AuthService {
             password: body.password,
         });
 
-        this.usersClient.emit(createUserEvent.topic, createUserEvent.data);
+        // Emitimos al topic genérico, cualquier microservicio interesado lo consume
+        this.kafkaClient.emit(createUserEvent.topic, createUserEvent.data);
 
         return {
             message: 'User registration in progress, you will receive an email once done.',
@@ -33,7 +34,7 @@ export class AuthService {
             password: body.password,
         });
 
-        const response = await this.usersClient.send(validateUserEvent.topic, validateUserEvent.data)[0]
+        const response = await this.kafkaClient.send(validateUserEvent.topic, validateUserEvent.data)[0]
         // Generate Token if password is valid
         if (!response.isValid) {
             throw new UnauthorizedException();

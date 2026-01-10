@@ -1,19 +1,18 @@
 import { Global, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { KAFKA_CLIENT } from '@ecommerce-event-driven/domain';
+import { KAFKA_CLIENT, UsersMicroservice } from '@ecommerce-event-driven/domain';
 
 /**
- * MicroservicesModule
+ * KafkaModule
  * 
- * Este módulo configura un cliente Kafka GENÉRICO que no está acoplado
- * a ningún microservicio específico. El API Gateway solo conoce topics,
- * no microservicios destino.
+ * Este módulo configura un cliente Kafka para que el microservicio de usuarios
+ * pueda EMITIR eventos a Kafka (ej: UserCreatedEvent).
  * 
  * Arquitectura Event-Driven:
- * - API Gateway emite eventos a topics de Kafka
- * - Cualquier microservicio interesado se suscribe al topic
- * - Desacoplamiento total entre productor y consumidores
+ * - El microservicio de usuarios consume eventos (ej: CreateUser)
+ * - Cuando termina de procesar, EMITE nuevos eventos (ej: UserCreated)
+ * - Cualquier otro microservicio interesado puede suscribirse a esos eventos
  */
 @Global()
 @Module({
@@ -26,11 +25,8 @@ import { KAFKA_CLIENT } from '@ecommerce-event-driven/domain';
           transport: Transport.KAFKA,
           options: {
             client: {
-              clientId: 'api-gateway',
+              clientId: `${UsersMicroservice.clientId}-producer`,
               brokers: configService.get<string>('KAFKA_BROKERS')?.split(',') || [],
-            },
-            consumer: {
-              groupId: 'api-gateway-consumer-group',
             },
           },
         }),
@@ -40,4 +36,4 @@ import { KAFKA_CLIENT } from '@ecommerce-event-driven/domain';
   ],
   exports: [ClientsModule],
 })
-export class MicroservicesModule {}
+export class KafkaModule {}
