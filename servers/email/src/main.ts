@@ -26,6 +26,7 @@ async function bootstrap() {
         },
         consumer: {
           groupId: 'email-consumer-group',
+          retry: { retries: 5, initialRetryTime: 300 }
         },
         subscribe: {
           fromBeginning: true,
