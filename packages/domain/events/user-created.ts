@@ -8,6 +8,7 @@ export interface UserCreatedEventData {
     emailAddress: string;
     phoneNumber: string;
     profileImageKey: string;
+    verificationToken: string;
     status: string;
     createdAt: Date;
 }

@@ -5,6 +5,10 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserEventData } from '@ecommerce-event-driven/domain';
 import { UserStatus } from '../enums';
+import { randomBytes, scrypt } from 'node:crypto';
+import { promisify } from 'node:util';
+
+const scryptAsync = promisify(scrypt);
 
 @Injectable()
 export class CreateUserUseCase {
@@ -18,11 +22,15 @@ export class CreateUserUseCase {
   async execute(data: CreateUserEventData): Promise<UserEntity> {
     this.logger.log(`Executing CreateUserUseCase with data: ${JSON.stringify(data)}`);
 
+    const salt = randomBytes(16).toString('hex');
+    const derivedKey = (await scryptAsync(data.password, salt, 64)) as Buffer;
+    const hashedPassword = `${salt}:${derivedKey.toString('hex')}`;
+
     const newUser = this.userRepository.create({
       firstName: data.firstName,
       lastName: data.lastName,
       emailAddress: data.email,
-      password: data.password,
+      password: hashedPassword,
       phoneNumber: 'N/A', 
       profileImageKey: '',
       status: UserStatus.INACTIVE,
