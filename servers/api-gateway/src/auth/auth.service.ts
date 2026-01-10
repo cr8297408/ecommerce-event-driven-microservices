@@ -35,12 +35,12 @@ export class AuthService {
         });
 
         const response = await this.kafkaClient.send(validateUserEvent.topic, validateUserEvent.data)[0]
-        // Generate Token if password is valid
-        if (!response.isValid) {
-            throw new UnauthorizedException();
-        }
 
-        const payload = { sub: response.user.userId, email: response.user.email };
+        if (!response.emailIsActive) throw new UnauthorizedException('Email is not active');
+
+        if (!response.isValid) throw new UnauthorizedException('Invalid email or password');
+
+        const payload = { sub: response.user.id, email: response.user.email };
 
         const token = await this.jwtService.signAsync(payload);
 

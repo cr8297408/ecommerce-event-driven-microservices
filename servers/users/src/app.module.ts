@@ -6,7 +6,7 @@ import { DatabaseModule } from './database';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { KafkaModule } from './kafka/kafka.module';
-import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep } from './steps';
+import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep, FindUserByEmailStep, VerifyPasswordStep } from './steps';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -22,6 +22,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep],
+  providers: [AppService, HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep, FindUserByEmailStep, VerifyPasswordStep],
 })
 export class AppModule {}

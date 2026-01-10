@@ -1,7 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
-import { CreateUserEventData, Topics, UserCreatedEvent, UserCreationFailedEvent } from '@ecommerce-event-driven/domain';
-import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep } from './steps';
+import { CreateUserEventData, Topics, UserCreatedEvent, UserCreationFailedEvent, ValidateEmailAndPasswordEventData } from '@ecommerce-event-driven/domain';
+import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep, FindUserByEmailStep, VerifyPasswordStep } from './steps';
+import { UserEntity } from './entities/user.entity';
+import { UserStatus } from './enums';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -12,6 +14,8 @@ export class AppService implements OnModuleInit {
     private readonly hashPasswordStep: HashPasswordStep,
     private readonly generateTokenStep: GenerateVerificationTokenStep,
     private readonly createUserStep: CreateUserStep,
+    private readonly findUserByEmailStep: FindUserByEmailStep,
+    private readonly verifyPasswordStep: VerifyPasswordStep,
   ) {}
 
   async onModuleInit() {
@@ -56,5 +60,21 @@ export class AppService implements OnModuleInit {
       this.kafkaClient.emit(userCreationFailedEvent.topic, userCreationFailedEvent.data);
       throw error;
     }
+  }
+
+  async validateEmailAndPassword(data: ValidateEmailAndPasswordEventData): Promise<{ isValid: boolean; emailIsActive: boolean; user?: UserEntity }> {
+    const user = await this.findUserByEmailStep.execute(data.email);
+    if (!user) {
+      return { isValid: false, emailIsActive: false };
+    }
+
+    const emailIsActive = user.status === UserStatus.ACTIVE;
+    const isPasswordValid = await this.verifyPasswordStep.execute(data.password, user.password);
+
+    if (isPasswordValid && emailIsActive) {
+      return { isValid: true, emailIsActive: true, user };
+    }
+
+    return { isValid: false, emailIsActive };
   }
 }
