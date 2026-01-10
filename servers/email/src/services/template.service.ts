@@ -7,7 +7,7 @@ type TemplateName = "activation" | "passwordReset";
 @Injectable()
 export class TemplateService {
     private readonly logger = new Logger(TemplateService.name);
-    private readonly templatesDir = path.join(__dirname, '..', 'templates');
+    private readonly templatesDir = path.join(__dirname, '../../', 'templates');
 
     async getTemplate(templateName: TemplateName, data: Record<string, string>): Promise<string> {
         const filePath = path.join(this.templatesDir, `${templateName}.html`);
