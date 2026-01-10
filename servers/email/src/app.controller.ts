@@ -8,6 +8,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
   private readonly logger = new Logger(AppController.name);
 
+  @MessagePattern(Topics.USER_CREATED)
   async handleUserCreated(@Payload() data: UserCreatedEventData) {
     this.logger.log(`📧 User created event received for ${data.emailAddress}`);
     try {

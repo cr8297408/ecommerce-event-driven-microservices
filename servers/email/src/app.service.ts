@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { EMAIL_PROVIDER, IEmailProvider } from './providers';
 import { TemplateService } from './services';
 
@@ -9,12 +10,14 @@ export class AppService {
     constructor(
         @Inject(EMAIL_PROVIDER) private readonly emailProvider: IEmailProvider,
         private readonly templateService: TemplateService,
+        private readonly configService: ConfigService,
     ) { }
 
     async sendActivationEmail(to: string, name: string, token: string): Promise<void> {
         this.logger.log(`Preparing to send activation email to ${to}`);
         const subject = 'Activate your account';
-        const link = `http://localhost:3000/activate?token=${token}`; // In real app, generate valid token
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+        const link = `${frontendUrl}/activate?token=${token}`;
         
         const content = await this.templateService.getTemplate('activation', {
             name,
