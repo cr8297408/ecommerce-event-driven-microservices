@@ -6,11 +6,17 @@ import { JwtService } from '@nestjs/jwt';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
     constructor(
         private jwtService: JwtService,
         @Inject(KAFKA_CLIENT) private readonly kafkaClient: ClientKafka,
     ) { }
+
+    async onModuleInit() {
+        this.kafkaClient.subscribeToResponseOf(Topics.VALIDATE_EMAIL_AND_PASSWORD);
+        this.kafkaClient.subscribeToResponseOf(Topics.VERIFY_ACCOUNT);
+        await this.kafkaClient.connect();
+    }
 
     async register(body: RegisterDto) {
         const createUserEvent = new CreateUserEvent({
@@ -29,8 +35,6 @@ export class AuthService {
     }
 
     async loginWithPassword(body: LoginDto) {
-        this.kafkaClient.subscribeToResponseOf(Topics.VALIDATE_EMAIL_AND_PASSWORD);
-        await this.kafkaClient.connect();
         // Send Validate User Email And Password Event to Users Microservice
         const validateUserEvent = new ValidateEmailAndPasswordEvent({
             email: body.email,
@@ -52,8 +56,6 @@ export class AuthService {
     }
 
     async verifyAccount(body: VerifyAccountDto) {
-        this.kafkaClient.subscribeToResponseOf(Topics.VERIFY_ACCOUNT);
-        await this.kafkaClient.connect();
         const verifyAccountEvent = new VerifyAccountEvent({
             token: body.token,
         });
