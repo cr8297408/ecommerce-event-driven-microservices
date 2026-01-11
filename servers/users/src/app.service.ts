@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
-import { CreateUserEventData, Topics, UserCreatedEvent, UserCreationFailedEvent, ValidateEmailAndPasswordEventData } from '@ecommerce-event-driven/domain';
-import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep, FindUserByEmailStep, VerifyPasswordStep } from './steps';
+import { CreateUserEventData, ResendVerificationTokenEvent, Topics, UserCreatedEvent, UserCreationFailedEvent, ValidateEmailAndPasswordEventData, VerifyAccountEventData } from '@ecommerce-event-driven/domain';
+import { HashPasswordStep, GenerateVerificationTokenStep, CreateUserStep, FindUserByEmailStep, VerifyPasswordStep, UpdateUserStatusStep } from './steps';
 import { UserEntity } from './entities/user.entity';
 import { UserStatus } from './enums';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -16,6 +17,8 @@ export class AppService implements OnModuleInit {
     private readonly createUserStep: CreateUserStep,
     private readonly findUserByEmailStep: FindUserByEmailStep,
     private readonly verifyPasswordStep: VerifyPasswordStep,
+    private readonly updateUserStatusStep: UpdateUserStatusStep,
+    private readonly jwtService: JwtService,
   ) {}
 
   async onModuleInit() {
@@ -90,5 +93,49 @@ export class AppService implements OnModuleInit {
     }
 
     return { isValid: isPasswordValid, emailIsActive };
+  }
+  async verifyAccount(data: VerifyAccountEventData) {
+    this.logger.log(`🔍 Verifying account with token...`);
+    
+    try {
+        const decoded = this.jwtService.verify(data.token);
+        const email = decoded.email;
+        this.logger.log(`📧 Token valid for email: ${email}`);
+
+        const user = await this.findUserByEmailStep.execute(email);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (user.status === UserStatus.ACTIVE) {
+             this.logger.log(`ℹ️ User already active: ${email}`);
+             return { success: true, message: 'Account already active' };
+        }
+
+        await this.updateUserStatusStep.execute(user.id, UserStatus.ACTIVE);
+        this.logger.log(`✅ Account activated for: ${email}`);
+
+        return { success: true, message: 'Account verified successfully' };
+
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+             this.logger.warn(`⚠️ Token expired. Attempting to resend to user.`);
+             const decoded = this.jwtService.decode(data.token) as { email: string; [key: string]: any };
+             if (decoded && decoded.email) {
+                 this.logger.log(`📧 Regenerating token for: ${decoded.email}`);
+                 const newToken = this.generateTokenStep.execute(decoded.email);
+                 
+                 const resendEvent = new ResendVerificationTokenEvent({
+                    email: decoded.email,
+                    token: newToken,
+                 });
+                 this.kafkaClient.emit(resendEvent.topic, resendEvent.data);
+                 this.logger.log(`📤 Resent verification token event emitted for: ${decoded.email}`);
+                 throw new Error('Token expired. A new verification email has been sent.');
+             }
+        }
+        this.logger.error(`❌ Token verification failed: ${error.message}`);
+        throw new Error('Invalid or expired token');
+    }
   }
 }

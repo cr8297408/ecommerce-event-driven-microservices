@@ -34,5 +34,7 @@ export enum Topics {
   CREATE_USER='user.create',
   USER_CREATED='user.created',
   USER_CREATION_FAILED='user.creation.failed',
-  VALIDATE_EMAIL_AND_PASSWORD='user.validate-email-password',
+  VALIDATE_EMAIL_AND_PASSWORD = 'validate_email_and_password',
+  VERIFY_ACCOUNT = 'verify_account',
+  RESEND_VERIFICATION_TOKEN = 'resend_verification_token',
 }

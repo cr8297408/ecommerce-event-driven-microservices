@@ -29,4 +29,20 @@ export class AppService {
         
         await this.emailProvider.sendEmail(to, subject, textContent, content);
     }
+
+    async handleResendVerificationToken(to: string, token: string): Promise<void> {
+        this.logger.log(`Preparing to resend activation email to ${to}`);
+        const subject = 'New Activation Link';
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+        const link = `${frontendUrl}/activate?token=${token}`;
+        
+        const content = await this.templateService.getTemplate('activation', {
+            name: 'User', 
+            link
+        });
+        
+        const textContent = `Hello, here is your new activation link: ${link}`;
+        
+        await this.emailProvider.sendEmail(to, subject, textContent, content);
+    }
 }

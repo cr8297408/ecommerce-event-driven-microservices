@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request } from '@nestjs/common';
 import { ApiAcceptedResponse, ApiBadRequestResponse, ApiTags } from '@nestjs/swagger';
-import { LoginDto, RegisterDto } from './dto';
+import { LoginDto, RegisterDto, VerifyAccountDto } from './dto';
 import { AuthService } from './auth.service';
 import { Public } from './decorators';
 
@@ -26,6 +26,16 @@ export class AuthController {
     @ApiBadRequestResponse({ description: 'Invalid input data' })
     async loginWithPassword(@Body() body: LoginDto) {
         const response = await this.authService.loginWithPassword(body);
+        return response;
+    }
+
+    @Post('account/verify')
+    @Public()
+    @HttpCode(HttpStatus.ACCEPTED)
+    @ApiAcceptedResponse({ description: 'User account verification request accepted' })
+    @ApiBadRequestResponse({ description: 'Invalid input data' })
+    async verifyAccount(@Body() body: VerifyAccountDto) {
+        const response = await this.authService.verifyAccount(body);
         return response;
     }
 

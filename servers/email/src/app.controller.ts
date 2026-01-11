@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Topics, UserCreatedEventData } from '@ecommerce-event-driven/domain';
+import { ResendVerificationTokenEventData, Topics, UserCreatedEventData } from '@ecommerce-event-driven/domain';
 import { AppService } from './app.service';
 
 @Controller()

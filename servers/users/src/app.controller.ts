@@ -1,8 +1,8 @@
 import { Controller, Get, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
-import { type CreateUserEventData, Topics, type ValidateEmailAndPasswordEventData } from '@ecommerce-event-driven/domain';
-import { CreateUserSchema, ValidateEmailAndPasswordSchema } from './validations';
+import { type CreateUserEventData, Topics, type ValidateEmailAndPasswordEventData, type VerifyAccountEventData } from '@ecommerce-event-driven/domain';
+import { CreateUserSchema, ValidateEmailAndPasswordSchema, VerifyAccountSchema } from './validations';
 
 @Controller()
 export class AppController {
@@ -28,6 +28,18 @@ export class AppController {
     try {
       const cleanMessage = await ValidateEmailAndPasswordSchema.validateAsync(data, { stripUnknown: true });
       return await this.appService.validateEmailAndPassword(cleanMessage);
+    } catch (error) {
+      this.logger.error(`Error de validación: ${error.message}`);
+      throw new Error(`Validation Error: ${error.message}`);
+    }
+  }
+
+  @MessagePattern(Topics.VERIFY_ACCOUNT)
+  async handleVerifyAccount(@Payload() data: VerifyAccountEventData) {
+    this.logger.log(`📥 Mensaje recibido en Kafka: ${JSON.stringify(data)}`);
+    try {
+      const cleanMessage = await VerifyAccountSchema.validateAsync(data, { stripUnknown: true });
+      return await this.appService.verifyAccount(cleanMessage);
     } catch (error) {
       this.logger.error(`Error de validación: ${error.message}`);
       throw new Error(`Validation Error: ${error.message}`);
