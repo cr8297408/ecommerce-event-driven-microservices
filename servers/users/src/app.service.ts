@@ -65,34 +65,31 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async validateEmailAndPassword(data: ValidateEmailAndPasswordEventData): Promise<{ isValid: boolean; emailIsActive: boolean; user?: UserEntity }> {
+  async validateEmailAndPassword(data: ValidateEmailAndPasswordEventData): Promise<{ success: boolean; message: string; user?: UserEntity }> {
     this.logger.log(`🔍 Validando credenciales para: ${data.email}`);
     const user = await this.findUserByEmailStep.execute(data.email);
     if (!user) {
       this.logger.warn(`❌ Usuario no encontrado: ${data.email}`);
-      return { isValid: false, emailIsActive: false };
+      return { success: false, message: 'Invalid credentials' };
     }
 
     this.logger.log(`👤 Usuario encontrado: ${user.id}. Verificando estado...`);
-    const emailIsActive = user.status === UserStatus.ACTIVE;
     
-    if (!emailIsActive) {
+    if (user.status !== UserStatus.ACTIVE) {
        this.logger.warn(`⚠️ Usuario inactivo: ${user.id} (${user.status})`);
+       return { success: false, message: 'Email is not active' };
     }
 
     this.logger.log(`🔑 Verificando contraseña para: ${user.id}...`);
     const isPasswordValid = await this.verifyPasswordStep.execute(data.password, user.password);
 
-    if (isPasswordValid && emailIsActive) {
-      this.logger.log(`✅ Credenciales válidas y usuario activo: ${user.id}`);
-      return { isValid: true, emailIsActive: true, user };
-    }
-
     if (!isPasswordValid) {
         this.logger.warn(`⛔ Contraseña inválida para: ${user.id}`);
+        return { success: false, message: 'Invalid credentials' };
     }
 
-    return { isValid: isPasswordValid, emailIsActive };
+    this.logger.log(`✅ Credenciales válidas y usuario activo: ${user.id}`);
+    return { success: true, message: 'Login successful', user };
   }
   async verifyAccount(data: VerifyAccountEventData) {
     this.logger.log(`🔍 Verifying account with token...`);
@@ -104,7 +101,8 @@ export class AppService implements OnModuleInit {
 
         const user = await this.findUserByEmailStep.execute(email);
         if (!user) {
-            throw new Error('User not found');
+             this.logger.warn(`❌ User not found for email from token: ${email}`);
+             return { success: false, message: 'User not found' };
         }
 
         if (user.status === UserStatus.ACTIVE) {
@@ -131,11 +129,11 @@ export class AppService implements OnModuleInit {
                  });
                  this.kafkaClient.emit(resendEvent.topic, resendEvent.data);
                  this.logger.log(`📤 Resent verification token event emitted for: ${decoded.email}`);
-                 throw new Error('Token expired. A new verification email has been sent.');
+                 return { success: false, message: 'Token expired. A new verification email has been sent.' };
              }
         }
         this.logger.error(`❌ Token verification failed: ${error.message}`);
-        throw new Error('Invalid or expired token');
+        return { success: false, message: 'Invalid or expired token' };
     }
   }
 }

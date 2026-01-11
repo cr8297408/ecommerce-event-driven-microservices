@@ -40,9 +40,7 @@ export class AuthService {
 
         const response = await firstValueFrom(this.kafkaClient.send(validateUserEvent.topic, validateUserEvent.data));
 
-        if (!response.emailIsActive && response.isValid) throw new UnauthorizedException('Email is not active');
-
-        if (!response.isValid) throw new UnauthorizedException('Invalid email or password');
+        if (!response.success) throw new UnauthorizedException(response.message || 'Invalid credentials');
 
         const payload = { sub: response.user.id, email: response.user.email };
 
@@ -63,6 +61,11 @@ export class AuthService {
         // Request-Response to Users Microservice
         // Use 'send' for request-response
         const response = await firstValueFrom(this.kafkaClient.send(verifyAccountEvent.topic, verifyAccountEvent.data));
+        console.log('verifyAccount response', response);
+
+        if (!response.success) {
+             throw new UnauthorizedException(response.message || 'Invalid or expired token');
+        }
 
         return response;
     }

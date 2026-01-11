@@ -9,6 +9,6 @@ export class GenerateVerificationTokenStep {
 
   execute(email: string): string {
     this.logger.log('Executing GenerateVerificationTokenStep');
-    return this.jwtService.sign({ email });
+    return this.jwtService.sign({ email }, { expiresIn: '30s' });
   }
 }

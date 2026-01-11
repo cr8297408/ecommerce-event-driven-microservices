@@ -18,4 +18,15 @@ export class AppController {
        this.logger.error(`❌ Failed to send email to ${data.emailAddress}: ${error.message}`);
     }
   }
+
+  @MessagePattern(Topics.RESEND_VERIFICATION_TOKEN)
+  async handleResendVerificationToken(@Payload() data: ResendVerificationTokenEventData) {
+    this.logger.log(`📧 Resend verification token event received for ${data.email}`);
+    try {
+      await this.appService.handleResendVerificationToken(data.email, data.token);
+      this.logger.log(`✅ Resend Email sent successfully to ${data.email}`);
+    } catch (error) {
+       this.logger.error(`❌ Failed to send email to ${data.email}: ${error.message}`);
+    }
+  }
 }
