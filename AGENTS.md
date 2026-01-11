@@ -77,3 +77,17 @@ Implement **strategic logging** to make the system behavior observable and easy 
 - ✅ **Success**: Successful completion of a critical action (e.g., `✅ Account activated`).
 - ⚠️ **Warning**: Business logic denials or non-critical issues (e.g., `⚠️ Token expired`).
 - ❌ **Error**: Exceptions or critical failures (e.g., `❌ Token verification failed`).
+
+## 🎨 Coding Standards & Best Practices
+
+- **Strict Typing**:
+    - 🚫 **No `any`**: The use of `any` is strictly forbidden. Always use rigorous TypeScript typing (interfaces, classes, or types).
+    - Use `unknown` if the type is truly uncertain, and validate it before use.
+- **Microservice Communication**:
+    - Always strictly type event payloads.
+- **Clean Code**:
+    - Follow SOLID principles.
+    - Avoid "Magic Numbers" or strings; use constants or Enums.
+- **Error Handling**:
+    - Do not swallow errors. Catch, log with emojis, and re-throw or handle gracefully.
+    - Return structured responses (e.g., `{ success: boolean, message: string }`) instead of boolean flags for business logic results.
