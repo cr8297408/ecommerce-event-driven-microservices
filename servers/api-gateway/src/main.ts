@@ -11,6 +11,7 @@ async function bootstrap() {
   .setDescription('Api gateway for the ecommerce event driven microservices architecture')
   .setVersion('1.0')
   .addTag('api-gateway')
+  .addBearerAuth()
   .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

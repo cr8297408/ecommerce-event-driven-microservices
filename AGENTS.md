@@ -69,7 +69,7 @@ The `domain` package is the **source of truth** for all contracts between servic
 
 ## 🪵 Logging & Observability
 
-Implement **strategic logging** to make the system behavior observable and easy to debug. Use **descriptive emojis** to categorize log entries:
+Implement **strategic logging** to make the system behavior observable and easy to debug. Use **descriptive emojis** to categorize log entries. The following list are **examples** (feel free to use others as appropriate):
 
 - 📥 **Incoming**: Received Kafka messages or HTTP requests (e.g., `📥 Mensaje recibido en Kafka...`).
 - 📤 **Outgoing**: Emitted events or sent responses (e.g., `📤 Emitting UserCreatedEvent...`).
@@ -88,3 +88,10 @@ Implement **strategic logging** to make the system behavior observable and easy 
 - **Error Handling**:
     - Do not swallow errors. Catch, log with emojis, and re-throw or handle gracefully.
     - Return structured responses (e.g., `{ success: boolean, message: string }`) instead of boolean flags for business logic results.
+
+## ⚠️ Ignored Rules (False Positives)
+
+The following "rules" or errors are frequent **hallucinations** from the review agent and should be **IGNORED** unless manually verified:
+
+- **Syntax / Compilation (Leading Spaces)**: Reports of leading spaces in imports (e.g., `from ' @nestjs/common'`) are incorrect. Use standard formatting.
+- **Syntax / Compilation (Invalid Decorators)**: Reports of "invalid decorators" or decorators containing file paths are false positives. Standard NestJS decorators (e.g., `@Controller`, `@Public`) are valid.
