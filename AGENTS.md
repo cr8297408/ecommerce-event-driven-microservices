@@ -85,9 +85,6 @@ Implement **strategic logging** to make the system behavior observable and easy 
     - Use `unknown` if the type is truly uncertain, and validate it before use.
 - **Microservice Communication**:
     - Always strictly type event payloads.
-- **Clean Code**:
-    - Follow SOLID principles.
-    - Avoid "Magic Numbers" or strings; use constants or Enums.
 - **Error Handling**:
     - Do not swallow errors. Catch, log with emojis, and re-throw or handle gracefully.
     - Return structured responses (e.g., `{ success: boolean, message: string }`) instead of boolean flags for business logic results.
